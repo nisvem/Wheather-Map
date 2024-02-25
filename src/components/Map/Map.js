@@ -95,7 +95,7 @@ const Map = () => {
       setLng(e.lngLat.lng.toFixed(4));
       setLat(e.lngLat.lat.toFixed(4));
     });
-  }, []);
+  });
 
   function onClosePopup() {
     setPopup(!popup);
