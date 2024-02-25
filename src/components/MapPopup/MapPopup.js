@@ -8,7 +8,6 @@ import PopupInformation from '../PopupInformation/PopupInformation';
 const MapPopupStyled = styled.div`
   position: absolute;
   bottom: 0;
-  right: 0;
   margin: 12px;
   border-radius: 4px;
   font-family: monospace;
@@ -20,12 +19,16 @@ const MapPopupStyled = styled.div`
   align-items: center;
   justify-content: center;
 
-  max-width: 400px;
+  width: 400px;
+  max-width: calc(100% - 24px);
   min-height: 200px;
-  width: 100%;
 
   right: ${props => props.$visible === 'true' ? '0px' : '-600px'};
   transition: all 0.5s ease-in-out;
+
+  @media (max-width: 600px) {
+    bottom: 30px;
+  }
 `;
 
 const BtnClose = styled.div`

@@ -14,8 +14,10 @@ const wheatherBaseUrl = 'https://api.weatherapi.com/v1';
 const wheatherPathCurrent = '/current.json';
 
 const MapStyled = styled.div`
+  position: relative;
   width: 100vw;
   height: 100vh;
+  overflow: hidden;
 `;
 
 const MapContainerStyled = styled.div`
@@ -38,8 +40,12 @@ const SidebarStyled = styled.div`
   left: 0;
   margin: 12px;
   border-radius: 4px;
-`;
+  max-width: calc(40% - 24px);
 
+  @media (max-width: 600px) {
+    font-size: 12px;
+  }
+`;
 
 const Map = () => {
   const mapContainer = useRef(null);
@@ -50,6 +56,7 @@ const Map = () => {
   const [zoom, setZoom] = useState(null);
   const [ready, setReady] = useState(false);
   const [data, setData] = useState(null);
+  const marker = useRef(new mapboxgl.Marker({ color: 'orange' }));
 
   useEffect(() => {
     if (map.current) return; // initialize map only once
@@ -62,11 +69,14 @@ const Map = () => {
       minZoom: 3,
     });
 
-    map.current.addControl(new MapboxGeocoder({
-      accessToken: mapboxgl.accessToken,
-      mapboxgl: mapboxgl,
-      language: 'es-ES',
-    }), 'top-right');
+    map.current.addControl(
+      new MapboxGeocoder({
+        accessToken: mapboxgl.accessToken,
+        mapboxgl: mapboxgl,
+        language: 'es-ES',
+      }),
+      'top-right'
+    );
 
     map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
@@ -75,48 +85,57 @@ const Map = () => {
       setLat(map.current.getCenter().lat.toFixed(4));
       setZoom(map.current.getZoom().toFixed(4));
     });
-    
-    const marker = new mapboxgl.Marker({color: 'orange'});
 
     map.current.on('click', (e) => {
       onClickMap(e.lngLat.lat, e.lngLat.lng);
-      marker.setLngLat([e.lngLat.lng, e.lngLat.lat]).addTo(map.current);
+      marker.current.setLngLat([e.lngLat.lng, e.lngLat.lat]).addTo(map.current);
     });
 
     map.current.on('mousemove', (e) => {
       setLng(e.lngLat.lng.toFixed(4));
       setLat(e.lngLat.lat.toFixed(4));
     });
-  });
+  }, []);
 
   function onClosePopup() {
     setPopup(!popup);
+    marker.current.remove();
   }
 
   function onClickMap(lat, lng) {
     setPopup(true);
     setReady(false);
 
-    fetch(`${wheatherBaseUrl + wheatherPathCurrent}?key=${wheatherKey}&q=${lat},${lng}`)
-      .then(response => response.json())
-      .then(data => {
+    fetch(
+      `${
+        wheatherBaseUrl + wheatherPathCurrent
+      }?key=${wheatherKey}&q=${lat},${lng}`
+    )
+      .then((response) => response.json())
+      .then((data) => {
         setTimeout(() => {
           setReady(true);
           setData(data);
         }, 1000);
       })
-      .catch(function (res) { console.log(res) });
+      .catch(function (res) {
+        console.log(res);
+      });
   }
 
   return (
     <MapStyled>
       <SidebarStyled>
-        Longitude: {lng}<br />Latitude: {lat}<br />Zoom: {zoom}
+        Longitude: {lng}
+        <br />
+        Latitude: {lat}
+        <br />
+        Zoom: {zoom}
       </SidebarStyled>
       <MapPopup open={popup} onClose={onClosePopup} ready={ready} data={data} />
       <MapContainerStyled ref={mapContainer}></MapContainerStyled>
     </MapStyled>
   );
-}
+};
 
 export default Map;

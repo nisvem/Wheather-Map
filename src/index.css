@@ -17,3 +17,14 @@ code {
   height: 100%;
   min-height: 100vh;
 }
+
+
+@media (max-width: 600px) {
+  .mapboxgl-ctrl-top-right .mapboxgl-ctrl {
+    min-width: auto;
+  }
+
+  .mapboxgl-ctrl-top-right {
+    left: 50%;
+  }
+}
